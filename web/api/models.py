@@ -197,7 +197,8 @@ class JobListResponse(BaseModel):
 class SettingsRequest(BaseModel):
     """Settings update payload."""
     google_api_key: Optional[str] = None
-    pexels_api_key: Optional[str] = None
+    pixabay_api_key: Optional[str] = None
+    pexels_api_key: Optional[str] = None  # Deprecated request alias.
     hf_token: Optional[str] = None
     nvidia_api_key: Optional[str] = None
     # Defaults
@@ -212,7 +213,8 @@ class SettingsRequest(BaseModel):
 class SettingsResponse(BaseModel):
     """Current settings (keys are masked)."""
     google_api_key_set: bool = False
-    pexels_api_key_set: bool = False
+    pixabay_api_key_set: bool = False
+    pexels_api_key_set: bool = False  # Deprecated response alias.
     hf_token_set: bool = False
     nvidia_api_key_set: bool = False
     default_clips: int = 7

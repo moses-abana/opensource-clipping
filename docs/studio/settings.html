@@ -85,7 +85,7 @@
                 <!-- Page Header -->
                 <div class="mb-8">
                     <h1 class="font-display font-bold text-2xl sm:text-3xl text-slate-900 dark:text-white">Settings</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Konfigurasi API keys dan default settings</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Configure API keys and default settings</p>
                 </div>
 
                 <!-- Loading -->
@@ -124,21 +124,21 @@
                                     </p>
                                 </div>
 
-                                <!-- Pexels -->
+                                <!-- Pixabay -->
                                 <div>
                                     <label class="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-                                        Pexels API Key
-                                        <span id="pexels-badge" class="hidden text-emerald-500 text-[10px] font-bold">✅ SET</span>
+                                        Pixabay API Key
+                                        <span id="pixabay-badge" class="hidden text-emerald-500 text-[10px] font-bold">✅ SET</span>
                                     </label>
                                     <div class="relative">
-                                        <input id="input-pexels-key" type="password" placeholder="For B-roll footage (optional)"
+                                        <input id="input-pixabay-key" type="password" placeholder="For B-roll footage (optional)"
                                             class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 placeholder-slate-400 text-slate-900 dark:text-white pr-10">
-                                        <button type="button" onclick="togglePasswordVisibility('input-pexels-key', this)"
+                                        <button type="button" onclick="togglePasswordVisibility('input-pixabay-key', this)"
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1" title="Toggle visibility">
                                             👁️
                                         </button>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-1">Required for B-roll stock footage</p>
+                                    <p class="text-xs text-slate-400 mt-1"><a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener">Get a free Pixabay API key →</a></p>
                                 </div>
 
                                 <!-- HuggingFace -->
@@ -284,7 +284,7 @@
 
                 // Key badges
                 document.getElementById('google-badge').classList.toggle('hidden', !settings.google_api_key_set);
-                document.getElementById('pexels-badge').classList.toggle('hidden', !settings.pexels_api_key_set);
+                document.getElementById('pixabay-badge').classList.toggle('hidden', !settings.pixabay_api_key_set);
                 document.getElementById('hf-badge').classList.toggle('hidden', !settings.hf_token_set);
                 document.getElementById('nvidia-badge').classList.toggle('hidden', !settings.nvidia_api_key_set);
 
@@ -320,18 +320,18 @@
             try {
                 const payload = {};
                 const googleKey = document.getElementById('input-google-key').value;
-                const pexelsKey = document.getElementById('input-pexels-key').value;
+                const pixabayKey = document.getElementById('input-pixabay-key').value;
                 const hfToken = document.getElementById('input-hf-token').value;
                 const nvidiaKey = document.getElementById('input-nvidia-key').value;
 
                 if (googleKey) payload.google_api_key = googleKey;
-                if (pexelsKey) payload.pexels_api_key = pexelsKey;
+                if (pixabayKey) payload.pixabay_api_key = pixabayKey;
                 if (hfToken) payload.hf_token = hfToken;
                 if (nvidiaKey) payload.nvidia_api_key = nvidiaKey;
 
                 if (Object.keys(payload).length === 0) {
                     msg.className = 'text-sm mb-4 text-amber-500';
-                    msg.textContent = 'Tidak ada perubahan';
+                    msg.textContent = 'No changes to save';
                     msg.classList.remove('hidden');
                     return;
                 }
@@ -340,19 +340,19 @@
 
                 // Clear inputs
                 document.getElementById('input-google-key').value = '';
-                document.getElementById('input-pexels-key').value = '';
+                document.getElementById('input-pixabay-key').value = '';
                 document.getElementById('input-hf-token').value = '';
                 document.getElementById('input-nvidia-key').value = '';
 
                 msg.className = 'text-sm mb-4 text-emerald-500';
-                msg.textContent = '✅ Settings berhasil diperbarui!';
+                msg.textContent = '✅ Settings updated successfully!';
                 msg.classList.remove('hidden');
 
                 // Reload to show updated badges
                 setTimeout(() => loadSettings(), 500);
             } catch (err) {
                 msg.className = 'text-sm mb-4 text-red-500';
-                msg.textContent = '❌ Gagal menyimpan: ' + err.message;
+                msg.textContent = '❌ Failed to save: ' + err.message;
                 msg.classList.remove('hidden');
             } finally {
                 btn.disabled = false;

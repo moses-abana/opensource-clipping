@@ -33,7 +33,7 @@
 | **Cinematic Teaser Hook** | Hook 3 detik dengan overlay gelap, cinematic bars, dan transisi **TV Glitch** |
 | **Karaoke Subtitles** | Subtitle `.ASS` yang menyala per-kata (gaya Alex Hormozi / Veed) |
 | **Kinetic Typography** | Penekanan kata otomatis dengan animasi bounce/stagger & sistem dual-font |
-| **B-Roll Integration** | Mengambil stock footage kontekstual dari **Pexels** dengan crossfade & Ken Burns (Mendukung Hybrid, Split-Screen & Camera-Switch) |
+| **B-Roll Integration** | Mengambil stock footage kontekstual dari **Pixabay** dengan crossfade & Ken Burns (Mendukung Hybrid, Split-Screen & Camera-Switch) |
 | **Multi-Hook Intro (V2)** | Membuat intro dengan 3-4 potongan hook cepat yang disertai transisi white flash/glitch |
 | **Smart Segment Trimming** | AI dinamis memotong bagian kosong/membosankan di tengah video untuk pacing cepat |
 | **Auto-BGM & Ducking** | Musik latar otomatis dari koleksi lokal (`assets/bgm/`) dengan 2 mode: *sidechain ducking* (volume BGM otomatis turun saat bicara) atau *background* (volume konstan). File MP3 di-loop otomatis jika lebih pendek dari video |
@@ -56,7 +56,7 @@
 - **FFmpeg** terinstall dan tersedia di PATH
 - **GPU CUDA** disarankan (untuk Whisper; bisa fallback ke CPU)
 - **Google Gemini API Key** ([dapatkan di sini](https://aistudio.google.com/apikey))
-- **Pexels API Key** (opsional, untuk B-roll — [dapatkan di sini](https://www.pexels.com/api/))
+- **Pixabay API Key** (opsional, untuk B-roll — [dapatkan di sini](https://pixabay.com/api/docs/))
 - **HuggingFace Token** (opsional, untuk split-screen / camera-switch — [dapatkan di sini](https://huggingface.co/settings/tokens), perlu accept [Pyannote model agreement](https://huggingface.co/pyannote/speaker-diarization-3.1))
 
 ## ☁️ Menjalankan di Google Colab (Direkomendasikan)

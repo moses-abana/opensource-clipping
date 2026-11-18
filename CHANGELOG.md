@@ -7,6 +7,11 @@ All notable changes to the **OpenSource Clipping** project will be documented in
 - **Minor (x.Y.z)**: Incremented for new functionality introduced in a backward-compatible manner.
 - **Patch (x.y.Z)**: Incremented for backward-compatible bug fixes or minor patches.
 
+## [Unreleased]
+
+### Changed
+- **B-roll provider**: Replace Pexels with Pixabay video search. Configure `PIXABAY_API_KEY`; legacy `PEXELS_API_KEY` values and settings payloads remain accepted for compatibility.
+
 
 ## [v1.15.7]
 

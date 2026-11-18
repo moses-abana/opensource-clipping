@@ -136,7 +136,7 @@ def estimate_speaker_count_from_video(video_path: str, cfg) -> int:
             model_name = f"yolov{cfg.yolo_size}-face.pt"
             yolo_model = YOLO(model_name)
         except Exception as e:
-            print(f"⚠️ YOLO face detect gagal: {e}. Fallback ke Mediapipe.")
+            print(f"⚠️ YOLO face detection failed: {e}. Falling back to MediaPipe.")
             cfg.face_detector = "mediapipe"
 
     if cfg.face_detector != "yolo":
@@ -184,7 +184,7 @@ def estimate_speaker_count_from_video(video_path: str, cfg) -> int:
             max_faces = faces_in_frame
 
     cap.release()
-    print(f"   ✅ Ditemukan maksimum {max_faces} wajah dalam satu frame.", flush=True)
+    print(f"   ✅ Found up to {max_faces} faces in a single frame.", flush=True)
     return max(1, max_faces)
 
 

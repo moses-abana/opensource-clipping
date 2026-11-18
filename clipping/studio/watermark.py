@@ -1,11 +1,11 @@
 """
 clipping.studio.watermark — Watermark Overlay Engine
 
-Modul modular untuk menambahkan watermark pada frame video.
-Mendukung watermark teks dan watermark gambar (PNG, JPG, JPEG, WEBP)
-dengan auto-scaling, transparansi, dan 9 posisi anchor.
+Module for adding watermarks to video frames.
+Supports text and image watermarks (PNG, JPG, JPEG, WEBP)
+with auto-scaling, transparency, and 9 anchor positions.
 
-Usage (dipanggil per-frame dari renderer):
+Usage (called per frame by the renderer):
     from clipping.studio.watermark import apply_watermark
     frame = apply_watermark(frame, cfg)
 """
@@ -36,8 +36,8 @@ DEFAULT_FONT_SIZE = 0  # 0 = auto (3% of frame height)
 
 def validate_watermark_config(cfg):
     """
-    Validasi parameter watermark di config.
-    Raise ValueError jika ada yang tidak valid.
+    Validate watermark parameters in the config.
+    Raise ValueError if any option is invalid.
     """
     if not getattr(cfg, "watermark_enabled", False):
         return
@@ -47,51 +47,51 @@ def validate_watermark_config(cfg):
 
     if not wm_text and not wm_image:
         raise ValueError(
-            "❌ --watermark membutuhkan --text atau --image. "
-            "Contoh: --watermark --text \"Nama Watermark\""
+            "❌ --watermark requires --text or --image. "
+            "Example: --watermark --text \"Watermark Name\""
         )
 
     opacity = getattr(cfg, "watermark_opacity", DEFAULT_OPACITY)
     if not (1 <= opacity <= 100):
         raise ValueError(
-            f"❌ --opacity harus antara 1-100, diberikan: {opacity}"
+            f"❌ --opacity must be between 1 and 100; got {opacity}"
         )
 
     position = getattr(cfg, "watermark_position", DEFAULT_POSITION)
     if position not in VALID_POSITIONS:
         raise ValueError(
-            f"❌ --position '{position}' tidak valid. "
-            f"Pilihan: {', '.join(VALID_POSITIONS)}"
+            f"❌ --position '{position}' is invalid. "
+            f"Choose from: {', '.join(VALID_POSITIONS)}"
         )
 
     padding = getattr(cfg, "watermark_padding", DEFAULT_PADDING)
     if padding < 0:
         raise ValueError(
-            f"❌ --padding tidak boleh negatif, diberikan: {padding}"
+            f"❌ --padding cannot be negative; got {padding}"
         )
 
     font_size = getattr(cfg, "watermark_font_size", DEFAULT_FONT_SIZE)
     if font_size < 0:
         raise ValueError(
-            f"❌ --watermark-font-size tidak boleh negatif, diberikan: {font_size}"
+            f"❌ --watermark-font-size cannot be negative; got {font_size}"
         )
 
     if wm_image:
         if not os.path.exists(wm_image):
             raise ValueError(
-                f"❌ File watermark image tidak ditemukan: {wm_image}"
+                f"❌ Watermark image file not found: {wm_image}"
             )
         valid_exts = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff")
         if not wm_image.lower().endswith(valid_exts):
             raise ValueError(
-                f"❌ Format file watermark tidak didukung: {wm_image}. "
-                f"Format yang didukung: {', '.join(valid_exts)}"
+                f"❌ Unsupported watermark file format: {wm_image}. "
+                f"Supported formats: {', '.join(valid_exts)}"
             )
 
     scale = getattr(cfg, "watermark_scale", 15)
     if not (1 <= scale <= 100):
         raise ValueError(
-            f"❌ --watermark-scale harus antara 1-100, diberikan: {scale}"
+            f"❌ --watermark-scale must be between 1 and 100; got {scale}"
         )
 
 
@@ -101,7 +101,7 @@ def validate_watermark_config(cfg):
 
 
 class WatermarkRenderer(ABC):
-    """Abstract base class untuk semua jenis watermark renderer."""
+    """Abstract base class for all watermark renderers."""
 
     def __init__(self, cfg):
         self.opacity = getattr(cfg, "watermark_opacity", DEFAULT_OPACITY) / 100.0
@@ -110,7 +110,7 @@ class WatermarkRenderer(ABC):
 
     def _calculate_position(self, frame_w, frame_h, wm_w, wm_h):
         """
-        Hitung koordinat (x, y) untuk watermark berdasarkan posisi dan padding.
+        Calculate the watermark coordinates (x, y) based on position and padding.
 
         Padding diterapkan dari sisi terdekat sesuai posisi:
         - top-left     → padding dari atas dan kiri
@@ -119,7 +119,7 @@ class WatermarkRenderer(ABC):
         - dst.
 
         Returns:
-            tuple[int, int]: Koordinat (x, y) untuk top-left corner watermark.
+            tuple[int, int]: Coordinates (x, y) for the watermark's top-left corner.
         """
         pad = self.padding
 
@@ -144,13 +144,13 @@ class WatermarkRenderer(ABC):
     @abstractmethod
     def render(self, frame):
         """
-        Apply watermark ke frame OpenCV (BGR).
+        Apply the watermark to an OpenCV frame (BGR).
 
         Args:
-            frame: numpy array BGR dari OpenCV.
+            frame: OpenCV BGR numpy array.
 
         Returns:
-            numpy array BGR dengan watermark ter-overlay.
+            BGR numpy array with the watermark overlaid.
         """
         pass
 
@@ -162,8 +162,8 @@ class WatermarkRenderer(ABC):
 
 class TextWatermarkRenderer(WatermarkRenderer):
     """
-    Render watermark teks menggunakan PIL untuk kualitas font yang baik.
-    Font di-cache setelah load pertama untuk performa per-frame.
+    Render text watermarks with PIL for high-quality fonts.
+    Cache the font after its first load for per-frame performance.
     """
 
     def __init__(self, cfg):
@@ -173,7 +173,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
         self._font_cache = {}  # Cache font per size
         self._overlay_cache = {}  # Cache rendered overlay per (frame_w, frame_h)
 
-        # Cari font Montserrat dari project (sudah digunakan oleh subtitle system)
+        # Find the Montserrat font in the project (also used by the subtitle system).
         base_dir = getattr(cfg, "base_dir", os.getcwd())
         font_dir = getattr(cfg, "font_dir", os.path.join(base_dir, "custom_fonts"))
 
@@ -199,7 +199,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
         return self._font_cache[size]
 
     def _compute_font_size(self, frame_h):
-        """Hitung font size: gunakan setting jika > 0, atau auto (3% tinggi frame, min 16px)."""
+        """Calculate font size: use the setting if > 0, otherwise auto (3% of frame height, minimum 16px)."""
         if self.font_size_setting > 0:
             return self.font_size_setting
         return max(16, int(frame_h * 0.03))
@@ -219,7 +219,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
             font_size = self._compute_font_size(frame_h)
             font = self._get_font(font_size)
 
-            # Ukur teks menggunakan PIL
+            # Measure the text with PIL.
             dummy_img = Image.new("RGBA", (1, 1), (0, 0, 0, 0))
             draw = ImageDraw.Draw(dummy_img)
             bbox = draw.textbbox((0, 0), self.text, font=font)
@@ -238,7 +238,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
             overlay_rgba = Image.new("RGBA", (wm_w, wm_h), (0, 0, 0, 0))
             overlay_draw = ImageDraw.Draw(overlay_rgba)
 
-            # Teks putih dengan shadow halus untuk readability
+            # White text with a subtle shadow for readability.
             shadow_offset = max(1, font_size // 30)
             # Shadow
             overlay_draw.text(
@@ -260,7 +260,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
         # Alpha blend overlay ke frame
         wm_w, wm_h = overlay_rgba.size
 
-        # Clamp agar tidak keluar batas frame
+        # Clamp the position to keep it inside the frame.
         x2 = min(x + wm_w, frame_w)
         y2 = min(y + wm_h, frame_h)
         actual_w = x2 - x
@@ -278,7 +278,7 @@ class TextWatermarkRenderer(WatermarkRenderer):
 
         # Apply opacity
         if self.opacity < 1.0:
-            # Skala alpha channel sesuai opacity
+            # Scale the alpha channel according to the opacity.
             r, g, b, a = overlay_crop.split()
             a = a.point(lambda p: int(p * self.opacity))
             overlay_crop = Image.merge("RGBA", (r, g, b, a))
@@ -322,10 +322,10 @@ class ImageWatermarkRenderer(WatermarkRenderer):
         if self.image_path and os.path.exists(self.image_path):
             try:
                 img = Image.open(self.image_path)
-                # Convert ke RGBA (tambah alpha channel jika tidak ada)
+                # Convert to RGBA (add an alpha channel if missing).
                 self._source_rgba = img.convert("RGBA")
             except Exception as e:
-                print(f"⚠️ Gagal memuat watermark image: {self.image_path} — {e}")
+                print(f"⚠️ Failed to load watermark image: {self.image_path} — {e}")
                 self._source_rgba = None
 
     def _scale_image(self, source_rgba, target_h):
@@ -338,7 +338,7 @@ class ImageWatermarkRenderer(WatermarkRenderer):
             target_h: Tinggi frame target.
 
         Returns:
-            PIL Image RGBA yang sudah di-scale.
+            A scaled PIL RGBA image.
         """
         desired_h = max(8, int(target_h * self.scale_pct / 100.0))
         src_w, src_h = source_rgba.size
@@ -365,11 +365,11 @@ class ImageWatermarkRenderer(WatermarkRenderer):
         if cache_key in self._overlay_cache:
             scaled_rgba, x, y = self._overlay_cache[cache_key]
         else:
-            # Scale image sesuai frame
+            # Scale the image to fit the frame.
             scaled_rgba = self._scale_image(self._source_rgba, frame_h)
             wm_w, wm_h = scaled_rgba.size
 
-            # Hitung posisi menggunakan base class
+            # Calculate the position using the base class.
             x, y = self._calculate_position(frame_w, frame_h, wm_w, wm_h)
 
             self._overlay_cache[cache_key] = (scaled_rgba, x, y)
@@ -377,7 +377,7 @@ class ImageWatermarkRenderer(WatermarkRenderer):
         # Alpha blend overlay ke frame
         wm_w, wm_h = scaled_rgba.size
 
-        # Clamp agar tidak keluar batas frame
+        # Clamp the position to keep it inside the frame.
         x2 = min(x + wm_w, frame_w)
         y2 = min(y + wm_h, frame_h)
         actual_w = x2 - x
@@ -419,7 +419,7 @@ def create_watermark_renderer(cfg):
     Factory function: buat renderer yang tepat berdasarkan config.
 
     Returns:
-        WatermarkRenderer | None: Renderer instance, atau None jika watermark tidak aktif.
+        WatermarkRenderer | None: Renderer instance, or None if watermarking is disabled.
     """
     if not getattr(cfg, "watermark_enabled", False):
         return None

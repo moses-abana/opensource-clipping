@@ -271,7 +271,7 @@ def finish_job(
             status, step, message = JobStatus.FAILED, "error", error
         else:
             status, step = JobStatus.COMPLETED, "done"
-            message = f"Selesai! {len(job.get('clips', []))} klip berhasil dirender."
+            message = f"Complete! {len(job.get('clips', []))} clips rendered successfully."
         job.update(
             status=status.value, error=error, updated_at=_now(),
             progress=JobProgressEvent(

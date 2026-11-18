@@ -117,7 +117,7 @@ def buat_video_camera_switch(
     detector = None
     if cfg.face_detector == "yolo":
         if not os.path.exists(cfg.file_yolo_model):
-            print(f"   📥 Mendownload YOLOv8 Face Model ({cfg.yolo_size})...")
+            print(f"   📥 Downloading YOLOv8 face model ({cfg.yolo_size})...")
             import urllib.request
 
             urllib.request.urlretrieve(cfg.url_yolo_model, cfg.file_yolo_model)
@@ -162,7 +162,7 @@ def buat_video_camera_switch(
     #   N active + N faces → sort faces by X; sort speakers by label; assign in order
     #   1 active + N faces → use speaker's last-known position to pick nearest face
     #   otherwise          → skip (ambiguous / no data)
-    print(f"🧠 {label} - Analisa wajah (camera switch) dimulai...", flush=True)
+    print(f"🧠 {label} - Face analysis (camera switch) started...", flush=True)
 
     all_frame_data: list[dict] = []  # [{time, face_centers, active_now}]
     speaker_solo_cxs: dict[str, list] = {}  # speaker → [cx, ...] from 1:1 frames
@@ -492,13 +492,13 @@ def buat_video_camera_switch(
     last_switch_time = 0.0
 
     # --- Anti-Sliding: Last-known position cache per speaker ---
-    # Menyimpan koordinat crop terakhir (cx, cy, zoom) per speaker.
-    # Saat switch kembali ke speaker yang sudah pernah aktif, snap langsung
-    # ke posisi terakhirnya, menghindari sliding/panning besar.
+    # Store the last crop coordinates (cx, cy, zoom) for each speaker.
+    # When switching back to a previously active speaker, snap to their last
+    # position to avoid large sliding or panning movements.
     last_speaker_pos: dict[str, tuple[float, float, float]] = {}
-    prev_speaker = None  # speaker sebelum switch, untuk deteksi transisi
+    prev_speaker = None  # Speaker before the switch, used to detect transitions.
     SWITCH_BLEND_DUR = float(getattr(cfg, "switch_blend_duration", 0.0))
-    switch_blend_t0 = -1.0  # waktu mulai blending setelah switch
+    switch_blend_t0 = -1.0  # Start time for blending after a switch.
 
     def _resolve_switch_pos(speaker, t, is_new_switch):
         """Return (cx, cy, zoom) with anti-sliding cache + optional blend."""
@@ -533,7 +533,7 @@ def buat_video_camera_switch(
         last_render_percent = -1
         tracking_log = [] # Store (t, cx) for each frame
 
-        print(f"🎬 {label} - Render camera switch dimulai...", flush=True)
+        print(f"🎬 {label} - Camera-switch rendering started...", flush=True)
 
         while True:
             ret, frame = cap.read()
@@ -740,9 +740,9 @@ def buat_video_camera_switch(
         return_code = writer.wait()
 
         if return_code != 0:
-            raise RuntimeError(f"FFmpeg writer gagal: {stderr_data[-1000:]}")
+            raise RuntimeError(f"FFmpeg writer failed: {stderr_data[-1000:]}")
 
-        print(f"✅ {label} selesai.", flush=True)
+        print(f"✅ {label} complete.", flush=True)
 
         # Helper for subtitle positioning
         def get_x_final(t):

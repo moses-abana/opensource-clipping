@@ -53,7 +53,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
 
     import glob
 
-    # Mencari file json3 apapun (karena bahasanya bisa .id.json3 atau .en.json3)
+    # Find any JSON3 file; its suffix may be .id.json3 or .en.json3.
     json3_files = glob.glob(cfg.file_video_asli.replace(".mp4", ".*.json3"))
     file_json3 = json3_files[0] if json3_files else None
 
@@ -69,7 +69,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
             )
             if transkrip_lengkap and data_segmen:
                 print(
-                    f"✅ Berhasil memparsing subtitle dari YouTube ({os.path.basename(file_json3)}), melewati proses Whisper."
+                    f"✅ Parsed YouTube subtitles ({os.path.basename(file_json3)}); skipping Whisper transcription."
                 )
 
     if not transkrip_lengkap or not data_segmen:
@@ -86,7 +86,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
     gemini_output_path = os.path.join(cfg.outputs_dir, "gemini_response.json")
     
     if getattr(cfg, "load_gemini_json", False) and os.path.exists(gemini_output_path):
-        print(f"\n🔄 [3/3] Memuat data AI ({cfg.ai_provider}) dari file lokal: {gemini_output_path}")
+        print(f"\n🔄 [3/3] Loading AI data ({cfg.ai_provider}) from local file: {gemini_output_path}")
         with open(gemini_output_path, "r", encoding="utf-8") as f:
             hasil_json = json.load(f)
     else:
@@ -95,7 +95,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
         # Save raw gemini json for future loading/reproduction
         with open(gemini_output_path, "w", encoding="utf-8") as f:
             json.dump(hasil_json, f, indent=4, ensure_ascii=False)
-        print(f"💾 Raw AI response tersimpan di: {gemini_output_path}")
+    print(f"💾 Raw AI response saved to: {gemini_output_path}")
 
     # Step 4 — Metadata normalisation
     hasil_json = metadata.normalize_and_validate(hasil_json)
@@ -143,8 +143,8 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
             if os.path.exists(audio_path):
                 os.remove(audio_path)
         except Exception as e:
-            print(f"⚠️ Diarization gagal: {e}")
-            print("   Fallback ke mode render biasa (tanpa split-screen).")
+            print(f"⚠️ Diarization failed: {e}")
+            print("   Falling back to standard rendering (without split-screen).")
             diarization_data = None
 
     # Step 6 — Video encoder & glitch
@@ -163,7 +163,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
 
     file_glitch_ts = None
     if cfg.use_hook_glitch:
-        print("⚙️ Menyiapkan Video Glitch Transisi...")
+        print("⚙️ Preparing the glitch transition video...")
         
         # Get source dimensions for proper glitch scaling
         import cv2
@@ -180,12 +180,12 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
 
     custom_hook_path = None
     if getattr(cfg, "hook_source", None):
-        print("\n🎣 Mengunduh sumber klip Hook kustom...")
+        print("\n🎣 Downloading the custom hook source...")
         custom_hook_path = hook_manager.download_custom_hook(cfg)
 
     # Step 5.5 — Generate Voice-Over (if enabled)
     if getattr(cfg, "voiceover", False):
-        print(f"\n🎙️ Meng-generate Voice-Over untuk {len(hasil_json)} klip...")
+        print(f"\n🎙️ Generating voice-over for {len(hasil_json)} clips...")
         for klip in hasil_json:
             try:
                 # 1. Generate commentary script from snippet
@@ -227,7 +227,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
                         }
 
             except Exception as e:
-                print(f"   ⚠️ Gagal generate voice-over untuk Rank {klip['rank']}: {e}")
+                print(f"   ⚠️ Failed to generate voice-over for rank {klip['rank']}: {e}")
 
     for klip in sorted(hasil_json, key=lambda x: x["rank"]):
         
@@ -259,7 +259,7 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
         json.dump(render_manifest, f, ensure_ascii=False, indent=2)
 
     print(
-        f"\n💾 Render manifest disimpan ke {manifest_path} ({len(render_manifest)} item)"
+        f"\n💾 Render manifest saved to {manifest_path} ({len(render_manifest)} items)"
     )
 
 

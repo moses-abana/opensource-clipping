@@ -117,7 +117,7 @@ def buat_video_split_screen(
     detector = None
     if cfg.face_detector == "yolo":
         if not os.path.exists(cfg.file_yolo_model):
-            print(f"   📥 Mendownload YOLOv8 Face Model ({cfg.yolo_size})...")
+            print(f"   📥 Downloading YOLOv8 face model ({cfg.yolo_size})...")
             import urllib.request
 
             urllib.request.urlretrieve(cfg.url_yolo_model, cfg.file_yolo_model)
@@ -212,7 +212,7 @@ def buat_video_split_screen(
     #   1 active + N faces → use speaker's last-known position to pick nearest face
     #   otherwise          → skip (ambiguous or no data)
 
-    print(f"🧠 {label} - Analisa wajah (split-screen) dimulai...", flush=True)
+    print(f"🧠 {label} - Face analysis (split-screen) started...", flush=True)
 
     all_frame_data: list[dict] = []  # [{time, face_centers, face_boxes, active_now}]
     speaker_solo_cxs: dict[str, list] = {}  # speaker → [cx, ...] from 1:1 frames
@@ -704,14 +704,14 @@ def buat_video_split_screen(
     last_switch_time = -MIN_HOLD
 
     # --- Anti-Sliding: Last-known position cache per speaker ---
-    # Menyimpan koordinat crop terakhir (cx, cy) per speaker untuk mode full/solo.
-    # Saat switch kembali ke speaker yang sudah pernah aktif, snap langsung
-    # ke posisi terakhirnya, menghindari sliding/panning besar.
+    # Store each speaker's last crop coordinates (cx, cy) for full/solo mode.
+    # When switching back to a previously active speaker, snap to their last
+    # position to avoid large sliding or panning movements.
     last_speaker_pos: dict[str, tuple[float, float]] = {}
-    prev_speaker_split = None  # speaker sebelum switch, untuk deteksi transisi
-    is_new_switch_split = False  # flag: apakah frame ini adalah frame pertama setelah switch
+    prev_speaker_split = None  # Speaker before the switch, used to detect transitions.
+    is_new_switch_split = False  # Whether this is the first frame after a switch.
     SWITCH_BLEND_DUR = float(getattr(cfg, "switch_blend_duration", 0.0))
-    switch_blend_t0 = -1.0  # waktu mulai blending setelah switch
+    switch_blend_t0 = -1.0  # Start time for blending after a switch.
 
     def _resolve_switch_pos_split(speaker, t, is_new_switch):
         """Return (cx, cy) with anti-sliding cache + optional blend."""
@@ -753,7 +753,7 @@ def buat_video_split_screen(
         frame_count = 0
         last_render_percent = -1
 
-        print(f"🎬 {label} - Render split-screen {'(dynamic)' if is_dynamic else ''} dimulai...", flush=True)
+        print(f"🎬 {label} - Split-screen rendering {'(dynamic)' if is_dynamic else ''} started...", flush=True)
         tracking_log = [] # Store (t, cx) for subtitle tracking
 
         while True:
@@ -891,7 +891,7 @@ def buat_video_split_screen(
                 spk = current_speaker or (speaker_top if speaker_top in ranked else ranked[0])
                 # Anti-sliding: resolve position with cache + optional blend
                 smooth_cx, smooth_cy = _resolve_switch_pos_split(spk, t, is_new_switch_split)
-                is_new_switch_split = False  # Reset flag setelah digunakan
+                is_new_switch_split = False  # Reset the flag after use.
                 # Calculate Top-Left X for full 9:16 crop
                 x_full = int(max(0, min(smooth_cx - crop_w_full / 2, width - crop_w_full)))
                 y_full = int(max(0, min(smooth_cy - crop_h_full / 2, height - crop_h_full)))
@@ -1160,16 +1160,16 @@ def buat_video_split_screen(
             stderr_data = writer_main.stderr.read().decode("utf-8", errors="ignore")
             return_code = writer_main.wait()
             if return_code != 0:
-                raise RuntimeError(f"FFmpeg writer main gagal: {stderr_data[-1000:]}")
+                raise RuntimeError(f"FFmpeg main writer failed: {stderr_data[-1000:]}")
         
         if writer_dev:
             writer_dev.stdin.close()
             stderr_data_dev = writer_dev.stderr.read().decode("utf-8", errors="ignore")
             return_code_dev = writer_dev.wait()
             if return_code_dev != 0:
-                raise RuntimeError(f"FFmpeg writer dev gagal: {stderr_data_dev[-1000:]}")
+                raise RuntimeError(f"FFmpeg dev writer failed: {stderr_data_dev[-1000:]}")
 
-        print(f"✅ {label} selesai.", flush=True)
+        print(f"✅ {label} complete.", flush=True)
 
     finally:
         cap.release()

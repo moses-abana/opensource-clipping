@@ -37,7 +37,7 @@ Welcome to the **OpenSource Clipping** wiki! This is the central hub for all doc
 - 🎯 **Smart Auto-Framing** — Face-tracking via MediaPipe / YOLOv8 with smooth pan and anti-jitter
 - 🎬 **Cinematic Teaser Hook** — 3-second hook with dark overlay and TV Glitch transition
 - 📝 **Karaoke Subtitles** — Word-by-word highlighted `.ASS` subtitles (Hormozi / Veed style)
-- 🎥 **B-Roll Integration** — Auto-fetches contextual stock footage from Pexels
+- 🎥 **B-Roll Integration** — Auto-fetches contextual stock footage from Pixabay
 - 🎙️ **Podcast Split-Screen** — Auto speaker diarization with top-bottom split layout
 - 📤 **Auto YouTube Upload** — Upload with scheduling and full metadata support
 - 📐 **5 Aspect Ratios** — `9:16`, `16:9`, `1:1`, `3:4`, `4:5`

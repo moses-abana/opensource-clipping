@@ -99,13 +99,13 @@ def _validate_analysis_config(cfg) -> None:
     if cfg.load_gemini_json:
         cached = Path(cfg.outputs_dir) / "gemini_response.json"
         if not cached.is_file():
-            raise ValueError("Cached AI JSON tidak ditemukan. Nonaktifkan Bypass AI untuk analisis baru.")
+            raise ValueError("Cached AI JSON was not found. Disable Bypass AI to run a new analysis.")
         return
     if cfg.ai_provider == "nvidia" and cfg.api_key_nvidia:
         return
     if not cfg.api_key_gemini:
         key_name = "NVIDIA_API_KEY atau GOOGLE_API_KEY" if cfg.ai_provider == "nvidia" else "GOOGLE_API_KEY"
-        raise ValueError(f"{key_name} tidak ditemukan. Set via Settings atau environment.")
+        raise ValueError(f"{key_name} was not found. Set it in Settings or in the environment.")
 
 
 def is_job_active(job_id: str) -> bool:
@@ -191,7 +191,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="download",
             step_number=1,
             total_steps=7,
-            message="Mengunduh video...",
+            message="Downloading video...",
             percent=5.0,
         )
 
@@ -204,14 +204,14 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             log_event("download_skipped", component="worker", job_id=job_id, stage="download", status="uploaded_source")
             upload_path = cfg.file_video_asli
             if not os.path.exists(upload_path):
-                raise ValueError("File upload tidak ditemukan.")
+                raise ValueError("Uploaded file was not found.")
             cfg.file_video_asli = upload_path
             store.update_progress(
                 job_id,
                 step="download",
                 step_number=1,
                 total_steps=7,
-                message="Menggunakan file upload.",
+                message="Using uploaded file.",
                 percent=14.0,
             )
         else:
@@ -223,11 +223,11 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                         step="download",
                         step_number=1,
                         total_steps=7,
-                        message="Bypass download: menggunakan video lama.",
+                        message="Skipping download and reusing the existing video.",
                         percent=14.0,
                     )
                 else:
-                    raise ValueError("Video asli tidak ditemukan di Job ID tersebut. File mungkin sudah terhapus.")
+                    raise ValueError("The original video was not found for that job ID. The file may have been deleted.")
             else:
                 engine.download_video(
                     cfg.url_youtube,
@@ -242,7 +242,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                     step="download",
                     step_number=1,
                     total_steps=7,
-                    message="Video berhasil diunduh.",
+                    message="Video downloaded successfully.",
                     percent=14.0,
                 )
 
@@ -255,7 +255,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="transcribe",
             step_number=2,
             total_steps=7,
-            message="Memulai transkripsi...",
+            message="Starting transcription...",
             percent=15.0,
         )
 
@@ -285,7 +285,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="transcribe",
             step_number=2,
             total_steps=7,
-            message="Transkripsi selesai.",
+            message="Transcription complete.",
             percent=35.0,
         )
 
@@ -298,7 +298,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="analyze",
             step_number=3,
             total_steps=7,
-            message="Menganalisis dengan AI... Provider dapat melakukan retry otomatis; tahap ini bisa memerlukan beberapa menit.",
+            message="Analyzing with AI... The provider may retry automatically; this can take a few minutes.",
             percent=36.0,
         )
 
@@ -318,7 +318,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="analyze",
             step_number=3,
             total_steps=7,
-            message=f"AI menemukan {len(hasil_json)} klip viral.",
+            message=f"AI found {len(hasil_json)} highlight clips.",
             percent=50.0,
         )
 
@@ -329,7 +329,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
 
         hasil_json = metadata.normalize_and_validate(hasil_json)
         if not hasil_json:
-            raise ValueError("AI tidak menghasilkan klip yang valid untuk dirender.")
+            raise ValueError("AI did not produce any valid clips to render.")
         metadata_path = os.path.join(cfg.outputs_dir, "metadata_preview.json")
         metadata.save_metadata_preview(hasil_json, path=metadata_path)
 
@@ -338,7 +338,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="metadata",
             step_number=4,
             total_steps=7,
-            message="Metadata dinormalisasi.",
+            message="Metadata normalized.",
             percent=55.0,
         )
 
@@ -360,7 +360,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                     step="diarization",
                     step_number=5,
                     total_steps=7,
-                    message="Menjalankan speaker diarization...",
+                    message="Running speaker diarization...",
                     percent=56.0,
                 )
                 audio_path = str(Path(cfg.outputs_dir) / "diarization_audio.wav")
@@ -391,7 +391,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                     step="diarization",
                     step_number=5,
                     total_steps=7,
-                    message=f"Diarization gagal: {e}. Fallback ke mode biasa.",
+                    message=f"Diarization failed: {e}. Falling back to standard mode.",
                     percent=58.0,
                 )
                 diarization_data = None
@@ -409,7 +409,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="render",
             step_number=6,
             total_steps=7,
-            message="Menyiapkan rendering...",
+            message="Preparing to render...",
             percent=60.0,
         )
 
@@ -454,7 +454,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                 step="render",
                 step_number=6,
                 total_steps=7,
-                message=f"Merender klip {clip_num}/{total_clips}...",
+                message=f"Rendering clip {clip_num}/{total_clips}...",
                 percent=60.0 + (35.0 * clip_num / total_clips),
             )
 
@@ -498,7 +498,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
         failed_count = total_clips - len(clips)
         error = None
         if failed_count:
-            error = f"{failed_count}/{total_clips} klip gagal dirender. Lihat render_manifest.json untuk detail."
+            error = f"{failed_count}/{total_clips} clips failed to render. See render_manifest.json for details."
         store.finish_job(job_id, clips=clips, error=error)
         trace.finish()
         terminal_status = "cancelled" if store.is_cancel_requested(job_id) else "failed" if failed_count else "completed"

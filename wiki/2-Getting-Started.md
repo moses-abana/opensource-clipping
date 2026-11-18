@@ -12,7 +12,7 @@ This guide walks you through setting up OpenSource Clipping on your local machin
 | **FFmpeg** | Must be installed and available in PATH |
 | **GPU (CUDA)** | Recommended for Whisper transcription (CPU fallback available) |
 | **Google Gemini API Key** | **Required** — [Get one here](https://aistudio.google.com/apikey) |
-| **Pexels API Key** | Optional, for B-roll footage — [Get one here](https://www.pexels.com/api/) |
+| **Pixabay API Key** | Optional, for B-roll footage — [Get one here](https://pixabay.com/api/docs/) |
 | **HuggingFace Token** | Optional, for split-screen / camera-switch — [Get one here](https://huggingface.co/settings/tokens) |
 
 > **Note:** If you plan to use split-screen or camera-switch podcast modes, you must also accept the [Pyannote model agreement](https://huggingface.co/pyannote/speaker-diarization-3.1) on HuggingFace.
@@ -51,7 +51,7 @@ Then edit the `.env` file and add your API keys:
 
 ```env
 GOOGLE_API_KEY=your-gemini-api-key-here
-PEXELS_API_KEY=your-pexels-api-key-here      # Optional
+PIXABAY_API_KEY=your-pixabay-api-key-here      # Optional
 HF_TOKEN=your-huggingface-token-here          # Optional (for podcast modes)
 NVIDIA_API_KEY=your-nvidia-api-key-here       # Optional (for NVIDIA NIM provider)
 ```

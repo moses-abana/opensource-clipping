@@ -27,7 +27,7 @@ def _load_studio_internal_module(file_name: str, module_alias: str):
     module_path = os.path.join(os.path.dirname(__file__), "studio", file_name)
     spec = importlib.util.spec_from_file_location(module_alias, module_path)
     if spec is None or spec.loader is None:
-        raise ImportError(f"Gagal memuat modul internal: {module_path}")
+        raise ImportError(f"Failed to load internal module: {module_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -53,7 +53,8 @@ register_fonts_for_libass = _core.register_fonts_for_libass
 siapkan_font_tipografi = _core.siapkan_font_tipografi
 get_local_bgm_file = _core.get_local_bgm_file
 build_bgm_filter = _core.build_bgm_filter
-download_pexels_broll = _core.download_pexels_broll
+download_pixabay_broll = _core.download_pixabay_broll
+download_pexels_broll = download_pixabay_broll
 crop_center_broll = _core.crop_center_broll
 buat_video_hybrid = _core.buat_video_hybrid
 buat_file_ass = _core.buat_file_ass

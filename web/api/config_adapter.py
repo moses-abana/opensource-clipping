@@ -149,8 +149,19 @@ def build_config_from_payload(
         # API keys — prefer env_overrides, then os.environ
         api_key_gemini=env.get("GOOGLE_API_KEY", os.environ.get("GOOGLE_API_KEY", "")),
         hf_token=env.get("HF_TOKEN", os.environ.get("HF_TOKEN", "")),
-        pexels_api_key=env.get("PEXELS_API_KEY", os.environ.get("PEXELS_API_KEY", "")),
-        # Pengaturan utama
+        pixabay_api_key=(
+            env.get("PIXABAY_API_KEY")
+            or env.get("PEXELS_API_KEY")
+            or os.environ.get("PIXABAY_API_KEY")
+            or os.environ.get("PEXELS_API_KEY", "")
+        ),
+        pexels_api_key=(
+            env.get("PIXABAY_API_KEY")
+            or env.get("PEXELS_API_KEY")
+            or os.environ.get("PIXABAY_API_KEY")
+            or os.environ.get("PEXELS_API_KEY", "")
+        ),
+        # Main settings
         source_platform=source_platform,
         url_youtube=payload.get("url"),
         jumlah_clip=payload.get("clips", 7),

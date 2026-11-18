@@ -51,13 +51,19 @@ async def get_settings() -> SettingsResponse:
 
     # Check which keys are set (from worker env or os.environ)
     google_key = env.get("GOOGLE_API_KEY", os.environ.get("GOOGLE_API_KEY", ""))
-    pexels_key = env.get("PEXELS_API_KEY", os.environ.get("PEXELS_API_KEY", ""))
+    pixabay_key = (
+        env.get("PIXABAY_API_KEY")
+        or env.get("PEXELS_API_KEY")
+        or os.environ.get("PIXABAY_API_KEY")
+        or os.environ.get("PEXELS_API_KEY", "")
+    )
     hf_token = env.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
     nvidia_key = env.get("NVIDIA_API_KEY", os.environ.get("NVIDIA_API_KEY", ""))
 
     return SettingsResponse(
         google_api_key_set=bool(google_key),
-        pexels_api_key_set=bool(pexels_key),
+        pixabay_api_key_set=bool(pixabay_key),
+        pexels_api_key_set=bool(pixabay_key),
         hf_token_set=bool(hf_token),
         nvidia_api_key_set=bool(nvidia_key),
         default_clips=int(env.get("DEFAULT_CLIPS", "7")),
@@ -77,8 +83,9 @@ async def update_settings(req: SettingsRequest) -> SettingsResponse:
 
     if req.google_api_key is not None:
         env_updates["GOOGLE_API_KEY"] = req.google_api_key
-    if req.pexels_api_key is not None:
-        env_updates["PEXELS_API_KEY"] = req.pexels_api_key
+    pixabay_key = req.pixabay_api_key if req.pixabay_api_key is not None else req.pexels_api_key
+    if pixabay_key is not None:
+        env_updates["PIXABAY_API_KEY"] = pixabay_key
     if req.hf_token is not None:
         env_updates["HF_TOKEN"] = req.hf_token
     if req.nvidia_api_key is not None:

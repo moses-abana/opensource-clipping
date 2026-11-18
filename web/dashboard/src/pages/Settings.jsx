@@ -44,7 +44,7 @@ function Settings() {
 
   // Form fields
   const [googleKey, setGoogleKey] = useState('')
-  const [pexelsKey, setPexelsKey] = useState('')
+  const [pixabayKey, setPixabayKey] = useState('')
   const [hfToken, setHfToken] = useState('')
   const [nvidiaKey, setNvidiaKey] = useState('')
 
@@ -61,12 +61,12 @@ function Settings() {
     try {
       const payload = {}
       if (googleKey) payload.google_api_key = googleKey
-      if (pexelsKey) payload.pexels_api_key = pexelsKey
+      if (pixabayKey) payload.pixabay_api_key = pixabayKey
       if (hfToken) payload.hf_token = hfToken
       if (nvidiaKey) payload.nvidia_api_key = nvidiaKey
 
       if (Object.keys(payload).length === 0) {
-        setMsg('Tidak ada perubahan')
+        setMsg('No changes to save')
         setSaving(false)
         return
       }
@@ -74,12 +74,12 @@ function Settings() {
       const updated = await updateSettings(payload)
       setSettings(updated)
       setGoogleKey('')
-      setPexelsKey('')
+      setPixabayKey('')
       setHfToken('')
       setNvidiaKey('')
-      setMsg('✅ Settings berhasil diperbarui!')
+      setMsg('✅ Settings updated successfully!')
     } catch (err) {
-      setMsg('❌ Gagal menyimpan: ' + err.message)
+      setMsg('❌ Failed to save: ' + err.message)
     } finally {
       setSaving(false)
     }
@@ -92,7 +92,7 @@ function Settings() {
       <div className="page-header">
         <div>
           <h2>Settings</h2>
-          <p>Konfigurasi API keys dan default settings</p>
+          <p>Configure API keys and default settings</p>
         </div>
       </div>
 
@@ -120,16 +120,16 @@ function Settings() {
 
             <div className="form-group">
               <label className="form-label">
-                Pexels API Key
-                {settings?.pexels_api_key_set && <span style={{ color: 'var(--success)', marginLeft: '8px' }}>✅ Set</span>}
+                Pixabay API Key
+                {settings?.pixabay_api_key_set && <span style={{ color: 'var(--success)', marginLeft: '8px' }}>✅ Set</span>}
               </label>
               <PasswordInput
-                value={pexelsKey}
-                onChange={setPexelsKey}
+                value={pixabayKey}
+                onChange={setPixabayKey}
                 placeholder="For B-roll footage (optional)"
-                isSet={settings?.pexels_api_key_set}
+                isSet={settings?.pixabay_api_key_set}
               />
-              <p className="form-hint">Required for B-roll stock footage</p>
+              <p className="form-hint"><a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Get a free key →</a></p>
             </div>
 
             <div className="form-group">

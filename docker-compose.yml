@@ -12,6 +12,7 @@ services:
       - ./custom_fonts:/app/custom_fonts
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - PIXABAY_API_KEY=${PIXABAY_API_KEY:-}
       - PEXELS_API_KEY=${PEXELS_API_KEY:-}
       - HF_TOKEN=${HF_TOKEN:-}
       - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}

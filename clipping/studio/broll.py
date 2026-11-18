@@ -47,95 +47,107 @@ open_ffmpeg_video_writer = _ffmpeg_utils.open_ffmpeg_video_writer
 build_ffmpeg_progress_cmd = _ffmpeg_utils.build_ffmpeg_progress_cmd
 run_ffmpeg_with_progress = _ffmpeg_utils.run_ffmpeg_with_progress
 
-USED_PEXELS_IDS = set()
+USED_PIXABAY_IDS = set()
+PIXABAY_SEARCH_CACHE = {}
 
 
-def download_pexels_broll(query, rasio, output_filename, pexels_api_key):
+def download_pixabay_broll(query, rasio, output_filename, pixabay_api_key):
     """
-    Search and download one Pexels B-roll video clip matching the query and aspect ratio.
+    Search and download one Pixabay B-roll video clip matching the query and aspect ratio.
 
     Args:
         query (str): Search query term (e.g., 'nature', 'technology').
         rasio (str): Target aspect ratio string (`9:16` for portrait or `16:9` for landscape).
         output_filename (str): Local file path where the downloaded MP4 will be saved.
-        pexels_api_key (str): Valid Pexels API key for authorization.
+        pixabay_api_key (str): Valid Pixabay API key.
 
     Returns:
         bool: True if the video was successfully downloaded and saved, False otherwise.
 
     Side Effects:
-        Makes HTTP GET requests to the Pexels API and video CDN.
-        Mutates the global `USED_PEXELS_IDS` set to prevent duplicate downloads.
+        Makes HTTP GET requests to the Pixabay API and video CDN.
+        Mutates the global `USED_PIXABAY_IDS` set to prevent duplicate downloads.
         Writes a temporary file (`.part`) and renames it upon successful download.
         Prints status and error messages to stdout.
 
     Raises:
         None explicitly. Exceptions during download or API calls are caught and return False.
     """
-    global USED_PEXELS_IDS
+    global USED_PIXABAY_IDS
 
-    if not pexels_api_key:
-        print("   ⚠️ PEXELS_API_KEY tidak ditemukan. B-roll dilewati.")
+    if not pixabay_api_key:
+        print("   ⚠️ PIXABAY_API_KEY was not found. Skipping B-roll.")
         return False
-
-    orientation = "portrait" if _is_vertical_ratio(rasio) else "landscape"
 
     params = urllib.parse.urlencode(
         {
-            "query": query,
-            "orientation": orientation,
+            "key": pixabay_api_key,
+            "q": query,
             "per_page": 30,
-            "size": "large",
-            "resolution_name": "1080p",
+            "safesearch": "true",
         }
     )
-    search_url = f"https://api.pexels.com/videos/search?{params}"
+    search_url = f"https://pixabay.com/api/videos/?{params}"
+    req = urllib.request.Request(search_url, headers={"User-Agent": "Mozilla/5.0"})
 
-    req = urllib.request.Request(
-        search_url,
-        headers={
-            "Authorization": pexels_api_key,
-            "User-Agent": "Mozilla/5.0",
-        },
-    )
+    cached = PIXABAY_SEARCH_CACHE.get(query)
+    if cached and time.monotonic() - cached[0] < 24 * 60 * 60:
+        data = cached[1]
+    else:
+        try:
+            with urllib.request.urlopen(req) as response:
+                data = json.load(response)
+            PIXABAY_SEARCH_CACHE[query] = (time.monotonic(), data)
+        except Exception as e:
+            # The API key is a query parameter; avoid logging exceptions that may echo the URL.
+            print(f"   ⚠️ Error API Pixabay saat mencari '{query}': {type(e).__name__}")
+            return False
 
-    try:
-        with urllib.request.urlopen(req) as response:
-            data = json.load(response)
-    except Exception as e:
-        print(f"   ⚠️ Error API Pexels saat mencari '{query}': {e}")
+    videos = data.get("hits", [])
+    if not videos:
+        print(f"   ⚠️ Pixabay found no videos for '{query}'.")
         return False
 
-    if not data.get("videos"):
-        print(f"   ⚠️ Pexels tidak menemukan video untuk '{query}'.")
-        return False
-
-    available_videos = [v for v in data["videos"] if v["id"] not in USED_PEXELS_IDS]
+    vertical = _is_vertical_ratio(rasio)
+    available_videos = [
+        video for video in videos
+        if video.get("id") not in USED_PIXABAY_IDS
+        and any(
+            isinstance(variant, dict)
+            and variant.get("url")
+            and bool(variant.get("width", 0) > variant.get("height", 0)) != vertical
+            for variant in video.get("videos", {}).values()
+        )
+    ]
     if not available_videos:
-        print(f"   🔄 B-roll pool untuk '{query}' habis, me-reset.")
-        available_videos = data["videos"]
+        available_videos = [
+            video for video in videos
+            if any(
+                isinstance(variant, dict) and variant.get("url")
+                for variant in video.get("videos", {}).values()
+            )
+        ]
+    if not available_videos:
+        print(f"   ⚠️ Pixabay returned no downloadable video files for '{query}'.")
+        return False
 
     video_data = random.choice(available_videos)
-    USED_PEXELS_IDS.add(video_data["id"])
-
-    video_files = [
-        vf
-        for vf in video_data.get("video_files", [])
-        if vf.get("file_type") == "video/mp4"
+    USED_PIXABAY_IDS.add(video_data.get("id"))
+    video_variants = video_data.get("videos", {})
+    matching_variants = [
+        video_variants.get(size, {})
+        for size in ("large", "medium", "small", "tiny")
+        if video_variants.get(size, {}).get("url")
+        and bool(video_variants[size].get("width", 0) > video_variants[size].get("height", 0)) != vertical
     ]
-    if not video_files:
-        print(f"   ⚠️ Tidak ada file MP4 di dalam data video '{query}'.")
+    all_variants = [
+        video_variants.get(size, {})
+        for size in ("large", "medium", "small", "tiny")
+        if video_variants.get(size, {}).get("url")
+    ]
+    download_url = (matching_variants or all_variants or [{}])[0].get("url")
+    if not download_url:
         return False
-
-    video_files.sort(
-        key=lambda vf: (
-            vf.get("quality") != "hd",
-            -(vf.get("width") or 0),
-            -(vf.get("height") or 0),
-        )
-    )
-
-    download_url = video_files[0]["link"]
     download_req = urllib.request.Request(
         download_url, headers={"User-Agent": "Mozilla/5.0"}
     )
@@ -150,8 +162,13 @@ def download_pexels_broll(query, rasio, output_filename, pexels_api_key):
         os.replace(temp_path, output_filename)
         return True
     except Exception as e:
-        print(f"   ⚠️ Error saat mengunduh B-roll '{query}': {e}")
+        print(f"   ⚠️ Error downloading B-roll for '{query}': {e}")
         return False
+
+
+# Kept as a compatibility alias for scripts importing the old public helper.
+USED_PEXELS_IDS = USED_PIXABAY_IDS
+download_pexels_broll = download_pixabay_broll
 
 
 def crop_center_broll(img, target_w, target_h):

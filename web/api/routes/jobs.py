@@ -112,7 +112,7 @@ async def create_job(req: JobCreateRequest) -> JobResponse:
 
     readiness = await asyncio.to_thread(get_readiness)
     if not readiness["ready"]:
-        raise HTTPException(status_code=503, detail="Renderer backend belum siap. Periksa /api/ready.")
+        raise HTTPException(status_code=503, detail="The renderer backend is not ready. Check /api/ready.")
 
     try:
         if reuse_job_id and worker.is_job_active(reuse_job_id):

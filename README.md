@@ -35,7 +35,7 @@
 | **Cinematic Teaser Hook** | 3-second hook with dark overlay, cinematic bars, and **TV Glitch** transition |
 | **Karaoke Subtitles** | Word-by-word highlighted `.ASS` subtitles (Alex Hormozi / Veed style) |
 | **Kinetic Typography** | AI-driven word emphasis with bounce/stagger animations & dual-font system |
-| **B-Roll Integration** | Auto-fetches contextual stock footage from **Pexels** with crossfade & Ken Burns (Supports Hybrid, Split-Screen & Camera-Switch) |
+| **B-Roll Integration** | Auto-fetches contextual stock footage from **Pixabay** with crossfade & Ken Burns (Supports Hybrid, Split-Screen & Camera-Switch) |
 | **Multi-Hook Intro (V2)** | Creates high-retention 3-4 micro-hook intros with flash/glitch transitions |
 | **Smart Segment Trimming** | AI dynamically selects the best segments to cut out boring/silent parts |
 | **Auto-BGM & Ducking** | Local BGM asset pool (`assets/bgm/`) with 2 modes: *sidechain ducking* (BGM auto-lowers during speech) or *background* (constant low volume). MP3 files auto-loop if shorter than the video |
@@ -58,7 +58,7 @@
 - **FFmpeg** installed and available in PATH
 - **CUDA GPU** recommended (for Whisper; CPU fallback available)
 - **Google Gemini API Key** ([get one here](https://aistudio.google.com/apikey))
-- **Pexels API Key** (optional, for B-roll — [get one here](https://www.pexels.com/api/))
+- **Pixabay API Key** (optional, for B-roll — [get one here](https://pixabay.com/api/docs/))
 - **HuggingFace Token** (optional, for split-screen / camera-switch — [get one here](https://huggingface.co/settings/tokens), requires accepting [Pyannote model agreement](https://huggingface.co/pyannote/speaker-diarization-3.1))
 
 ## ☁️ Running on Google Colab (Recommended)

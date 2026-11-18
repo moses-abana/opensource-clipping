@@ -133,11 +133,11 @@ To enable more features, add additional secrets:
 from google.colab import userdata
 
 GOOGLE_API_KEY = userdata.get("GOOGLE_API_KEY")
-PEXELS_API_KEY = userdata.get("PEXELS_API_KEY")    # For B-roll
+PIXABAY_API_KEY = userdata.get("PIXABAY_API_KEY")    # For B-roll
 HF_TOKEN = userdata.get("HF_TOKEN")                # For podcast modes
 
 env_text = f"""GOOGLE_API_KEY={GOOGLE_API_KEY}
-PEXELS_API_KEY={PEXELS_API_KEY}
+PIXABAY_API_KEY={PIXABAY_API_KEY}
 HF_TOKEN={HF_TOKEN}
 """
 Path(".env").write_text(env_text, encoding="utf-8")

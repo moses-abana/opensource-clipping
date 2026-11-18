@@ -89,15 +89,15 @@ function NewJob() {
     setError('')
 
     if (mode === 'url' && !url.trim()) {
-      setError('URL tidak boleh kosong')
+      setError('URL is required')
       return
     }
     if (mode === 'upload' && !uploadFilename) {
-      setError('Silakan upload video terlebih dahulu')
+      setError('Please upload a video first')
       return
     }
     if (mode === 'reuse' && !reuseJobId.trim()) {
-      setError('Job ID tidak boleh kosong')
+      setError('Job ID is required')
       return
     }
 
@@ -236,11 +236,11 @@ function NewJob() {
               <input
                 className="form-input"
                 type="text"
-                placeholder="Contoh: d20b47341e08"
+                placeholder="Example: d20b47341e08"
                 value={reuseJobId}
                 onChange={(e) => setReuseJobId(e.target.value)}
               />
-              <p className="form-hint" style={{ marginTop: '4px' }}>Bypass download dengan job ID lama. (Jika menggunakan Clone & Rerun, biarkan form ini terisi).</p>
+              <p className="form-hint" style={{ marginTop: '4px' }}>Skip the download by reusing an existing job ID. Leave this filled in when using Clone &amp; Rerun.</p>
             </div>
           )}
         </div>

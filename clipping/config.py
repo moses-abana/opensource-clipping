@@ -1,7 +1,7 @@
 """
 clipping.config — Master Configuration (Dashboard)
 
-Menyimpan semua default value dan membangun config dari CLI args.
+Stores all default values and builds configuration from CLI arguments.
 """
 
 import argparse
@@ -18,17 +18,17 @@ except ImportError:
     pass
 
 # ==============================================================================
-# DEFAULT VALUES  (sama persis dengan Cell 0 notebook)
+# DEFAULT VALUES (match notebook Cell 0 exactly)
 # ==============================================================================
 
 BASE_DIR = os.getcwd()
 FONT_DIR = os.path.abspath(os.path.join(BASE_DIR, "custom_fonts"))
 
-# 1. PENGATURAN UTAMA
+# 1. MAIN SETTINGS
 JUMLAH_CLIP = 7
 PILIHAN_RASIO = "9:16"
 
-# 2. PENGATURAN KONTEN & HOOK
+# 2. CONTENT & HOOK SETTINGS
 MAX_KATA_PER_SUBTITLE = 5
 DURASI_HOOK = 3
 USE_BROLL = True
@@ -42,7 +42,7 @@ SWITCH_BLEND_DURATION = 0.0  # 0 = instant snap, >0 = smooth blend in seconds
 # Source Platform
 SOURCE_PLATFORM = "youtube"
 
-# 3. PENGATURAN SUBTITLE & TIPOGRAFI (ASS STYLE)
+# 3. SUBTITLE & TYPOGRAPHY SETTINGS (ASS STYLE)
 USE_ADVANCED_TEXT = False
 USE_ADVANCED_TEXT_ON_HOOK = False
 USE_KARAOKE_EFFECT = True
@@ -140,7 +140,7 @@ USE_AUTO_BGM = True
 BGM_BASE_VOLUME = 0.25
 BGM_MODE = "ducking"  # 'ducking' = sidechain compress, 'background' = constant volume mix
 
-# Daftar mood yang didukung (sesuai nama folder di assets/bgm/)
+# Supported moods (matching folder names in assets/bgm/).
 BGM_MOODS = ["chill", "epic", "sad", "upbeat", "suspense"]
 BGM_DIR = os.path.abspath(os.path.join(BASE_DIR, "assets", "bgm"))
 
@@ -230,7 +230,7 @@ def _build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    # --- Pengaturan utama ---
+    # --- Main settings ---
     p.add_argument(
         "--url", "-u", required=False, default=None, nargs="+",
         help="One or more video URLs to process (space-separated). Supports YouTube, TikTok, Instagram, Google Drive. Required unless --story-mode is used.",
@@ -396,7 +396,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
 
-    # --- Subtitle & Tipografi ---
+    # --- Subtitles & Typography ---
     p.add_argument(
         "--font-style",
         default=GAYA_FONT_AKTIF,
@@ -795,21 +795,21 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
         if not args.text and not args.image:
             parser.error("--watermark membutuhkan --text atau --image.")
         if not (1 <= args.opacity <= 100):
-            parser.error(f"--opacity harus antara 1-100, diberikan: {args.opacity}")
+            parser.error(f"--opacity must be between 1 and 100; got {args.opacity}")
         if args.padding < 0:
-            parser.error(f"--padding tidak boleh negatif, diberikan: {args.padding}")
+            parser.error(f"--padding cannot be negative; got {args.padding}")
         if args.watermark_font_size < 0:
-            parser.error(f"--watermark-font-size tidak boleh negatif, diberikan: {args.watermark_font_size}")
+            parser.error(f"--watermark-font-size cannot be negative; got {args.watermark_font_size}")
         if not (1 <= args.watermark_scale <= 100):
-            parser.error(f"--watermark-scale harus antara 1-100, diberikan: {args.watermark_scale}")
+            parser.error(f"--watermark-scale must be between 1 and 100; got {args.watermark_scale}")
         if args.image:
             if not os.path.exists(args.image):
-                parser.error(f"File watermark image tidak ditemukan: {args.image}")
+                parser.error(f"Watermark image file was not found: {args.image}")
             valid_exts = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff")
             if not args.image.lower().endswith(valid_exts):
                 parser.error(
-                    f"Format file watermark image tidak didukung: {args.image}. "
-                    f"Format yang didukung: {', '.join(valid_exts)}"
+                    f"Unsupported watermark image format: {args.image}. "
+                    f"Supported formats: {', '.join(valid_exts)}"
                 )
 
     base_dir = os.getcwd()
@@ -840,8 +840,9 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
         # API keys (from env)
         api_key_gemini=os.environ.get("GOOGLE_API_KEY", ""),
         hf_token=os.environ.get("HF_TOKEN", ""),
-        pexels_api_key=os.environ.get("PEXELS_API_KEY", ""),
-        # Pengaturan utama
+        pixabay_api_key=os.environ.get("PIXABAY_API_KEY") or os.environ.get("PEXELS_API_KEY", ""),
+        pexels_api_key=os.environ.get("PIXABAY_API_KEY") or os.environ.get("PEXELS_API_KEY", ""),
+        # Main settings
         source_platform="tiktok" if args.tiktok else args.source,
         url_youtube=url_list[0] if len(url_list) == 1 else url_list,
         url_list=url_list,
@@ -878,7 +879,7 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
         split_v_align=args.split_v_align,
         split_auto_zoom=args.split_auto_zoom,
         split_max_zoom=args.split_max_zoom,
-        # Subtitle & Tipografi
+        # Subtitles & Typography
         no_subs=args.no_subs,
         gaya_font_aktif=args.font_style,
         daftar_font=DAFTAR_FONT,

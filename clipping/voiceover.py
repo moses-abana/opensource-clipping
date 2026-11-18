@@ -20,9 +20,9 @@ except ImportError:
 # ==============================================================================
 # AVAILABLE EDGE-TTS VOICES (REFERENCE)
 # ==============================================================================
-# Daftar voice edge-tts yang tersedia untuk referensi.
-# Gunakan value (string voice name) sebagai argumen `voice` di synthesize_voice().
-# Jalankan `edge-tts --list-voices` untuk daftar lengkap.
+# Available edge-tts voices for reference.
+# Use the value (voice name string) as the `voice` argument in synthesize_voice().
+# Run `edge-tts --list-voices` to see the full list.
 # GitHub: https://github.com/rany2/edge-tts
 # Preview: https://geeksta.net/tools/tts-samples/
 # Sample in git: https://github.com/yaph/tts-samples/blob/main/mp3/English/en-US-GuyNeural.mp3
@@ -33,8 +33,8 @@ AVAILABLE_VOICES = {
             "id-ID-ArdiNeural",
             "id-ID-GadisNeural",       # Note: despite name, check output
             "id-ID-ArdiNeural",         # Primary Indonesian male
-            # Edge-TTS hanya menyediakan 2 voice ID Indonesia (Ardi & Gadis).
-            # Alternatif Melayu (ms-MY) bisa digunakan untuk variasi:
+            # Edge-TTS provides only two Indonesian voice IDs (Ardi and Gadis).
+            # Malaysian voices (ms-MY) can be used as alternatives:
             "ms-MY-OsmanNeural",        # Malay male (mirip ID)
             "ms-MY-YasminNeural",       # Malay female (mirip ID)
             "jv-ID-DimasNeural",        # Javanese male
@@ -165,15 +165,15 @@ def _consolidate_segments(raw_segments: list[dict], words_per_seg: int = 3) -> l
 # ==============================================================================
 
 def get_commentary_prompt(transcript_snippet: str, style: str, language: str, length: str) -> str:
-    lang_instruction = "Gunakan bahasa Indonesia yang gaul tapi profesional (seperti narator YouTube/TikTok)."
+    lang_instruction = "Use natural, conversational Indonesian with a professional tone, like a YouTube or TikTok narrator."
     if language == "en":
         lang_instruction = "Use engaging, conversational English suitable for a YouTube/TikTok narrator."
         
     style_instructions = {
-        "analysis": "Berikan analisis tajam atau opini insightfull tentang kenapa momen ini penting atau menarik.",
-        "reaction": "Berikan reaksi natural seolah kamu sedang menonton momen ini dan terkesan/terkejut.",
-        "lesson": "Tarik satu pelajaran atau 'moral of the story' yang bisa diaplikasikan penonton dari momen ini.",
-        "summary": "Berikan konteks atau ringkasan singkat tapi memikat tentang apa yang terjadi di momen ini."
+        "analysis": "Give a sharp analysis or insightful opinion about why this moment matters or is interesting.",
+        "reaction": "React naturally as if you are watching this moment and feel impressed or surprised.",
+        "lesson": "Draw out one lesson from this moment that viewers can apply.",
+        "summary": "Give brief, engaging context or a summary of what happens in this moment."
     }
     
     if language == "en":
@@ -186,11 +186,11 @@ def get_commentary_prompt(transcript_snippet: str, style: str, language: str, le
         
     chosen_style = style_instructions.get(style, style_instructions["analysis"])
 
-    length_instruction = "berdurasi pendek (3-5 kalimat, sekitar 20-40 detik saat diucapkan)"
+    length_instruction = "short (3–5 sentences, around 20–40 seconds when spoken)"
     if length == "short":
-        length_instruction = "berdurasi sangat pendek (1-2 kalimat, sekitar 5-15 detik saat diucapkan)"
+        length_instruction = "very short (1–2 sentences, around 5–15 seconds when spoken)"
     elif length == "long":
-        length_instruction = "berdurasi lumayan panjang (5-7 kalimat, sekitar 40-60 detik saat diucapkan)"
+        length_instruction = "medium length (5–7 sentences, around 40–60 seconds when spoken)"
     if language == "en":
         length_instruction = "short duration (3-5 sentences, around 20-40 seconds when spoken)"
         if length == "short":
@@ -198,24 +198,23 @@ def get_commentary_prompt(transcript_snippet: str, style: str, language: str, le
         elif length == "long":
             length_instruction = "medium duration (5-7 sentences, around 40-60 seconds when spoken)"
 
-    prompt = f"""Kamu adalah seorang narator/komentator video pendek (Shorts/TikTok/Reels).
-Tugasmu adalah membuat script voice-over {length_instruction} 
-berdasarkan transkrip video berikut.
+    prompt = f"""You are a short-form video narrator/commentator (Shorts/TikTok/Reels).
+Write a {length_instruction} voice-over script based on the following video transcript.
 
 {lang_instruction}
 {chosen_style}
 
-ATURAN:
-1. JANGAN sekadar mengulang isi transkrip. Tambahkan value/opini/konteks kamu sendiri.
-2. JANGAN menggunakan sapaan pembuka seperti "Halo guys" atau penutup seperti "Jangan lupa subscribe". Langsung to the point ke isi momen.
-3. JANGAN berikan elemen format atau penjelasan tambahan. HANYA KELUARKAN TEKS SCRIPT YANG AKAN DIBACAKAN.
+RULES:
+1. Do not merely repeat the transcript. Add your own value, opinion, or context.
+2. Do not use an opening greeting such as "Hey guys" or a closing line such as "Don't forget to subscribe." Get straight to the moment.
+3. Do not include formatting or explanations. Output only the spoken script.
 
 TRANSKRIP KLIP:
 \"\"\"
 {transcript_snippet}
 \"\"\"
 
-SCRIPT VOICE-OVER (Hanya teks yang dibacakan, tanpa tanda kutip di awal/akhir):"""
+VOICE-OVER SCRIPT (spoken text only, without quotation marks):"""
     return prompt
 
 def generate_commentary_script(transcript_snippet: str, cfg, style="analysis", language="id", length="short") -> str:
@@ -224,7 +223,7 @@ def generate_commentary_script(transcript_snippet: str, cfg, style="analysis", l
     
     api_key = cfg.api_key_gemini
     if not api_key:
-        raise ValueError("GOOGLE_API_KEY tidak ditemukan di environment atau config.")
+        raise ValueError("GOOGLE_API_KEY was not found in the environment or config.")
 
     client = genai.Client(
         api_key=api_key,

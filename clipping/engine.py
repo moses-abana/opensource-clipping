@@ -589,8 +589,8 @@ def _generate_json_with_retry(client, model, fallback_model, contents, config):
 
 # ==== KONFIGURASI DURASI KLIP ====
 # Change these values to adjust the clip duration limits (in seconds).
-MIN_CLIP_DURATION = 20
-MAX_CLIP_DURATION = 179
+MIN_CLIP_DURATION = 50
+MAX_CLIP_DURATION = 230
 
 def get_analysis_prompt(transkrip_lengkap: str, jumlah_clip: int, durasi_hook: int, cfg=None) -> str:
     """Centralized prompt for both Gemini and NVIDIA providers."""
